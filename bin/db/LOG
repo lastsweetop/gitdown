@@ -1,6 +1,26 @@
 =============== Oct 14, 2017 (CST) ===============
-18:12:24.945745 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-18:12:24.946492 db@open opening
-18:12:24.948061 version@stat F·[] S·0B[] Sc·[]
-18:12:24.948381 db@janitor F·2 G·0
-18:12:24.948424 db@open done T·1.899ms
+20:57:26.411919 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+20:57:26.412908 db@open opening
+20:57:26.413641 version@stat F·[] S·0B[] Sc·[]
+20:57:26.413990 db@janitor F·2 G·0
+20:57:26.414045 db@open done T·1.102ms
+=============== Oct 14, 2017 (CST) ===============
+20:59:26.678689 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+20:59:26.679508 version@stat F·[] S·0B[] Sc·[]
+20:59:26.679544 db@open opening
+20:59:26.679624 journal@recovery F·1
+20:59:26.681153 journal@recovery recovering @1
+20:59:26.681971 memdb@flush created L0@2 N·1 S·176B "/Te..ase,v1":"/Te..ase,v1"
+20:59:26.682940 version@stat F·[1] S·176B[176B] Sc·[0.25]
+20:59:26.683845 db@janitor F·3 G·0
+20:59:26.683889 db@open done T·4.325ms
+=============== Oct 14, 2017 (CST) ===============
+20:59:56.710631 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+20:59:56.717686 version@stat F·[1] S·176B[176B] Sc·[0.25]
+20:59:56.717780 db@open opening
+20:59:56.717974 journal@recovery F·1
+20:59:56.718799 journal@recovery recovering @3
+20:59:56.719898 memdb@flush created L0@5 N·1 S·176B "/Te..ase,v3":"/Te..ase,v3"
+20:59:56.720317 version@stat F·[2] S·352B[352B] Sc·[0.50]
+20:59:56.721346 db@janitor F·4 G·0
+20:59:56.721395 db@open done T·3.582ms
