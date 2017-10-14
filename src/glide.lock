@@ -1,0 +1,31 @@
+hash: e1187e9f12aee744c49586f62c31d08478873f3137ed45a85b8e81ddf53d1283
+updated: 2017-10-13T21:54:54.333302+08:00
+imports:
+- name: github.com/andybalholm/cascadia
+  version: 349dd0209470eabd9514242c688c403c0926d266
+- name: github.com/golang/snappy
+  version: 553a641470496b2327abcac10b36396bd98e45c9
+- name: github.com/PuerkitoBio/goquery
+  version: 1a71cc719d0d5b9e4f14ae072bef08b576b0bab5
+- name: github.com/syndtr/goleveldb
+  version: b89cc31ef7977104127d34c1bd31ebd1a9db2199
+  subpackages:
+  - leveldb
+  - leveldb/cache
+  - leveldb/comparer
+  - leveldb/errors
+  - leveldb/filter
+  - leveldb/iterator
+  - leveldb/journal
+  - leveldb/memdb
+  - leveldb/opt
+  - leveldb/storage
+  - leveldb/table
+  - leveldb/util
+- name: golang.org/x/net
+  version: a04bdaca5b32abe1c069418fb7088ae607de5bd0
+  repo: https://github.com/golang/net.git
+  subpackages:
+  - html
+  - html/atom
+testImports: []

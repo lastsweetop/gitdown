@@ -1,0 +1,5 @@
+package: .
+import:
+  - package: golang.org/x/net
+    repo: https://github.com/golang/net.git
+  - package: github.com/syndtr/goleveldb/leveldb
