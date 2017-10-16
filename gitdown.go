@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gitdown/cmd"
+	"github.com/lastsweetop/gitdown/cmd"
 )
 
 func main() {
