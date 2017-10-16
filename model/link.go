@@ -1,6 +1,6 @@
 package model
 
-import "gitdown/dao"
+import "github.com/lastsweetop/gitdown/dao"
 
 type LinkP struct {
 	Path string
