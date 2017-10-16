@@ -3,14 +3,14 @@
 支持断点续传的gitlab库下载工具
 
 
-# 安装
+# Install
 
 ```
-
+go get -u  github.com/lastsweetop/gitdown
 ```
 
 
-# 示例
+# Getting Started
 
 ``` bash
 gitdown -g https://gitlab.com/TeeFirefly/FireNow-Nougat.git -p firefly-rk3399 -d FFTools
@@ -21,7 +21,7 @@ gitdown -g https://gitlab.com/TeeFirefly/FireNow-Nougat.git -p firefly-rk3399 -d
 
 ```
 
-# 命令行
+# Command
 
 ```
 gitdown -h
@@ -34,3 +34,9 @@ Flags:
   -h, --help               help for gitdown
   -p, --patch string       patch (default "master")
 ```
+
+# License
+This repository is Copyright (c) 2017 lastsweetop, Inc. All rights reserved. It is licensed under the MIT license. Please see the LICENSE file for applicable license terms.
+
+# Authors
+The primary author is [lastsweetop](http://www.lastsweetop.com), with some documentation and other minor contributions by others at lastsweetop.
