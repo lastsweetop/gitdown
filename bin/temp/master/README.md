@@ -1,3 +1,0 @@
-## grzesiek.gitlab.io
-
-Homepage.

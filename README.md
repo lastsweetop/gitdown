@@ -2,12 +2,20 @@
 
 支持断点续传的gitlab库下载工具
 
+
+# 安装
+
+```
+
+```
+
+
 # 示例
 
 ``` bash
 gitdown -g https://gitlab.com/TeeFirefly/FireNow-Nougat.git -p firefly-rk3399 -d FFTools
 
--g  git的url，默认为https://gitlab.com/TeeFirefly/FireNow-Nougat.git 
+-g  git的url，默认为https://gitlab.com/TeeFirefly/FireNow-Nougat.git
 -p  分支，默认为master
 -d  目录，默认为空
 
