@@ -1,12 +1,18 @@
 hash: e1187e9f12aee744c49586f62c31d08478873f3137ed45a85b8e81ddf53d1283
-updated: 2017-10-13T21:54:54.333302+08:00
+updated: 2017-10-16T16:04:20.298341+08:00
 imports:
 - name: github.com/andybalholm/cascadia
   version: 349dd0209470eabd9514242c688c403c0926d266
 - name: github.com/golang/snappy
   version: 553a641470496b2327abcac10b36396bd98e45c9
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/PuerkitoBio/goquery
   version: 1a71cc719d0d5b9e4f14ae072bef08b576b0bab5
+- name: github.com/spf13/cobra
+  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
+- name: github.com/spf13/pflag
+  version: a9789e855c7696159b7db0db7f440b449edf2b31
 - name: github.com/syndtr/goleveldb
   version: b89cc31ef7977104127d34c1bd31ebd1a9db2199
   subpackages:

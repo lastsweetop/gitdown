@@ -18,12 +18,12 @@ func NewLinkDB(dbname string) *LinkDB {
 	return &LinkDB{db}
 }
 
-func (db *LinkDB) PutBool(url string, done bool) {
+func (db *LinkDB) PutBool(url string, done bool) error {
 	num := "0"
 	if done {
 		num = "1"
 	}
-	db.Put([]byte(url), []byte(num), nil)
+	return db.Put([]byte(url), []byte(num), nil)
 }
 
 func (db *LinkDB) GetBool(url string) bool {
