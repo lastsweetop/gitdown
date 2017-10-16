@@ -23,20 +23,25 @@ var tree, blob, raw string
 var RootCmd *cobra.Command
 
 func init() {
-	var dpath string
-	project := "/TeeFirefly/FireNow-Nougat/"
-	tree = project + "tree"
-	blob = project + "blob"
-	raw = project + "raw"
+	var git, patch, directory string
 
 	RootCmd = &cobra.Command{
 		Use: "gitdown",
 		Run: func(cmd *cobra.Command, args []string) {
+
+			fmt.Println(git)
+			project := strings.TrimSuffix(strings.TrimPrefix(git, `https://gitlab.com`), ".git")
+			fmt.Println(project)
+			tree = project + "/tree/"
+			blob = project + "/blob/"
+			raw = project + "/raw/"
+
 			db := dao.NewLinkDB("db")
 			defer db.Close()
 
 			sum := 0
-			base := dpath
+			suc := 0
+			base := project + "/tree/" + patch + "/" + directory
 
 			db.PutBool(base, false)
 			wg.Add(1)
@@ -50,11 +55,6 @@ func init() {
 				if value == "0" {
 					wg.Add(1)
 					go spider(key, db)
-				} else {
-					// fmt.Println("exist", key)
-					sum++
-					fmt.Println(sum)
-					os.MkdirAll(strings.TrimLeft(key, tree), os.ModeDir|0755)
 				}
 			}
 			iter.Release()
@@ -63,8 +63,20 @@ func init() {
 			}
 			wg.Wait()
 
-			suc := 0
-			sum = 0
+			iter = db.NewIterator(util.BytesPrefix([]byte(tree)), nil)
+			for iter.Next() {
+				key := string(iter.Key())
+				value := string(iter.Value())
+				if value == "1" {
+					fmt.Println(strings.TrimPrefix(key, tree))
+					os.MkdirAll(strings.TrimPrefix(key, tree), os.ModeDir|0755)
+				}
+			}
+			iter.Release()
+			if iter.Error() != nil {
+				fmt.Println("error")
+			}
+
 			iter = db.NewIterator(util.BytesPrefix([]byte(raw)), nil)
 			for iter.Next() {
 				key := string(iter.Key())
@@ -84,7 +96,9 @@ func init() {
 			wg.Wait()
 		},
 	}
-	RootCmd.Flags().StringVarP(&dpath, "dpath", "d", "/TeeFirefly/FireNow-Nougat/tree/firefly-rk3399", "spider path")
+	RootCmd.Flags().StringVarP(&git, "git", "g", "https://gitlab.com/TeeFirefly/FireNow-Nougat/", "git url")
+	RootCmd.Flags().StringVarP(&patch, "patch", "p", "master", "patch")
+	RootCmd.Flags().StringVarP(&directory, "directory", "d", "", "directories path")
 }
 
 func spider(path string, db *dao.LinkDB) {
@@ -101,7 +115,7 @@ func spider(path string, db *dao.LinkDB) {
 	selection.Each(func(i int, s *goquery.Selection) {
 		link := s.Find("a")
 		if href, has := link.Attr("href"); has {
-			// fmt.Println(link.Text(), `https://gitlab.com`+href)
+			// fmt.Println(link.Text(), `https://gitlab.com`+href, tree)
 			if strings.HasPrefix(href, tree) {
 				if !strings.HasSuffix(href, "..") && !db.GetBool(href) {
 					batch.Put([]byte(href), []byte("0"))
@@ -131,7 +145,7 @@ func download(path string, db *dao.LinkDB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f, err := os.Create(strings.TrimLeft(path, "/TeeFirefly/FireNow-Nougat/raw/"))
+	f, err := os.Create(strings.TrimPrefix(path, raw))
 	defer f.Close()
 	if err != nil {
 		log.Fatal(err)
