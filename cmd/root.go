@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"gitdown/dao"
+	"github.com/gitdown/dao"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"

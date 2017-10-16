@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"gitdown/cmd"
+	"github.com/gitdown/cmd"
 )
 
 func main() {
