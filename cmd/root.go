@@ -51,10 +51,12 @@ func init() {
 			sum := 0
 			suc := 0
 			base := project + "/tree/" + patch + "/" + directory
+			ch := make(chan int, 100)
 
 			db.PutBool(base, false)
+			ch <- 1
 			wg.Add(1)
-			go spider(base, db)
+			go spider(base, db, client, ch)
 			wg.Wait()
 
 			iter := db.NewIterator(util.BytesPrefix([]byte(tree)), nil)
@@ -62,8 +64,9 @@ func init() {
 				key := string(iter.Key())
 				value := string(iter.Value())
 				if value == "0" {
+					ch <- 1
 					wg.Add(1)
-					go spider(key, db)
+					go spider(key, db, client, ch)
 				}
 			}
 			iter.Release()
@@ -86,7 +89,7 @@ func init() {
 				fmt.Println("error")
 			}
 
-			ch := make(chan int, 100)
+			ch = make(chan int, 100)
 			iter = db.NewIterator(util.BytesPrefix([]byte(raw)), nil)
 			for iter.Next() {
 				key := string(iter.Key())
@@ -112,15 +115,19 @@ func init() {
 	RootCmd.Flags().StringVarP(&directory, "directory", "d", "", "directories path")
 }
 
-func spider(path string, db *dao.LinkDB) {
+func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
 	fmt.Println("start ", path)
 	batch := new(leveldb.Batch)
 	url := `https://gitlab.com` + path
-	doc, err := goquery.NewDocument(url)
+
+	res, err := client.Get(url)
 	for err != nil {
-		// fmt.Println(url, "fail load")
 		time.Sleep(5000)
-		doc, err = goquery.NewDocument(url)
+		res, err = client.Get(url)
+	}
+	doc, err := goquery.NewDocumentFromResponse(res)
+	if err != nil {
+		log.Fatalln(err)
 	}
 	selection := doc.Find(".tree-item-file-name")
 	selection.Each(func(i int, s *goquery.Selection) {
@@ -131,8 +138,9 @@ func spider(path string, db *dao.LinkDB) {
 				if !strings.HasSuffix(href, "..") && !db.GetBool(href) {
 					batch.Put([]byte(href), []byte("0"))
 					// db.PutBool(href, false)
+					ch <- 1
 					wg.Add(1)
-					go spider(href, db)
+					go spider(href, db, client, ch)
 				}
 			}
 			if strings.HasPrefix(href, blob) {
@@ -143,11 +151,13 @@ func spider(path string, db *dao.LinkDB) {
 	// fmt.Println("success", path)
 	// db.PutBool(path, true)
 	batch.Put([]byte(path), []byte("1"))
+
 	err = db.Write(batch, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	// os.MkdirAll(strings.TrimLeft(path, "/TeeFirefly/FireNow-Nougat/tree/"), os.ModeDir|0755)
+	<-ch
 	wg.Done()
 }
 
