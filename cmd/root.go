@@ -119,7 +119,7 @@ func spider(path string, db *dao.LinkDB) {
 	doc, err := goquery.NewDocument(url)
 	for err != nil {
 		// fmt.Println(url, "fail load")
-		time.Sleep(20000)
+		time.Sleep(5000)
 		doc, err = goquery.NewDocument(url)
 	}
 	selection := doc.Find(".tree-item-file-name")
@@ -153,9 +153,9 @@ func spider(path string, db *dao.LinkDB) {
 
 func download(client http.Client, path string, db *dao.LinkDB, ch chan int) {
 	res, err := client.Get(`https://gitlab.com` + path)
-	if err != nil {
-		errorDone(err, ch)
-		return
+	for err != nil {
+		time.Sleep(5000)
+		res, err = client.Get(`https://gitlab.com` + path)
 	}
 	defer res.Body.Close()
 	f, err := os.Create(strings.TrimPrefix(path, raw))
