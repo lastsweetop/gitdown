@@ -19,7 +19,6 @@ go get -u  github.com/lastsweetop/gitdown
 ```
 ├── darwin_386
 │   └── gitdown
-├── gitdown
 ├── linux_386
 │   └── gitdown
 ├── linux_amd64
