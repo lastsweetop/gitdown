@@ -9,10 +9,9 @@ gitlab的下载库
 ## go的方式
 ```
 go get -u  github.com/lastsweetop/gitdown
-
+```
 [GO install](https://github.com/golang/go)
 
-```
 ## bin方式
 
 在bin目录下有各种系统的可执行包，下载即可执行
