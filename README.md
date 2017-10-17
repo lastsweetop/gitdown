@@ -6,16 +6,30 @@ gitlab的下载库
 - 最小下载    只下载某一版本某一目录的最新版本，不会去下载各种提交过程中的文件
 
 # Install
-
+## go的方式
 ```
 go get -u  github.com/lastsweetop/gitdown
-```
 
-# go Install
-
-```
+[GO install](https://github.com/golang/go)
 
 ```
+## bin方式
+
+在bin目录下有各种系统的可执行包，下载即可执行
+```
+├── darwin_386
+│   └── gitdown
+├── gitdown
+├── linux_386
+│   └── gitdown
+├── linux_amd64
+│   └── gitdown
+├── windows_386
+│   └── gitdown.exe
+└── windows_amd64
+    └── gitdown.exe
+```
+
 
 # Getting Started
 
