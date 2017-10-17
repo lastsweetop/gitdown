@@ -25,6 +25,14 @@ var RootCmd *cobra.Command
 
 func init() {
 	var git, patch, directory string
+	transport := http.Transport{
+		DisableKeepAlives: true,
+		MaxIdleConns:      100,
+	}
+
+	client := http.Client{
+		Transport: &transport,
+	}
 
 	RootCmd = &cobra.Command{
 		Use: "gitdown",
@@ -78,6 +86,7 @@ func init() {
 				fmt.Println("error")
 			}
 
+			ch := make(chan int, 100)
 			iter = db.NewIterator(util.BytesPrefix([]byte(raw)), nil)
 			for iter.Next() {
 				key := string(iter.Key())
@@ -85,8 +94,9 @@ func init() {
 				sum++
 				if value == "0" {
 					suc++
+					ch <- 1
 					wg.Add(1)
-					go download(key, db)
+					go download(client, key, db, ch)
 				}
 			}
 			fmt.Println(suc, "/", sum)
@@ -141,23 +151,34 @@ func spider(path string, db *dao.LinkDB) {
 	wg.Done()
 }
 
-func download(path string, db *dao.LinkDB) {
-	res, err := http.Get(`https://gitlab.com` + path)
+func download(client http.Client, path string, db *dao.LinkDB, ch chan int) {
+	res, err := client.Get(`https://gitlab.com` + path)
 	if err != nil {
-		log.Fatal(err)
+		errorDone(err, ch)
+		return
 	}
+	defer res.Body.Close()
 	f, err := os.Create(strings.TrimPrefix(path, raw))
 	defer f.Close()
 	if err != nil {
-		log.Fatal(err)
+		errorDone(err, ch)
+		return
 	}
 	len, err := io.Copy(f, res.Body)
 	if err != nil {
-		log.Fatal(err)
+		errorDone(err, ch)
+		return
 	}
 	fmt.Println(path, len)
 	if err := db.PutBool(path, true); err != nil {
-		log.Fatal(err)
+		errorDone(err, ch)
 	}
+	<-ch
+	wg.Done()
+}
+
+func errorDone(err error, ch chan int) {
+	<-ch
+	fmt.Println(err)
 	wg.Done()
 }

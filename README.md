@@ -11,6 +11,11 @@ gitlab的下载库
 go get -u  github.com/lastsweetop/gitdown
 ```
 
+# go Install
+
+```
+
+```
 
 # Getting Started
 
