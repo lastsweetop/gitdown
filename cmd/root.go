@@ -21,13 +21,18 @@ import (
 var wg sync.WaitGroup
 
 var tree, blob, raw string
+
+// RootCmd 基命令
 var RootCmd *cobra.Command
 
 func init() {
 	var git, patch, directory string
+	var thread int
+
 	transport := http.Transport{
-		DisableKeepAlives: true,
-		MaxIdleConns:      100,
+		ResponseHeaderTimeout: time.Second * 30000,
+		DisableKeepAlives:     true,
+		MaxIdleConns:          thread,
 	}
 
 	client := http.Client{
@@ -51,13 +56,13 @@ func init() {
 			sum := 0
 			suc := 0
 			base := project + "/tree/" + patch + "/" + directory
-			ch := make(chan int, 100)
-
-			db.PutBool(base, false)
-			ch <- 1
-			wg.Add(1)
-			go spider(base, db, client, ch)
-			wg.Wait()
+			ch := make(chan int, thread)
+			if !db.GetBool(base) {
+				ch <- 1
+				wg.Add(1)
+				go spider(base, db, client, ch)
+				wg.Wait()
+			}
 
 			iter := db.NewIterator(util.BytesPrefix([]byte(tree)), nil)
 			for iter.Next() {
@@ -65,6 +70,7 @@ func init() {
 				value := string(iter.Value())
 				if value == "0" {
 					ch <- 1
+					// time.Sleep(3000) //防止url tree抢占链接资源
 					wg.Add(1)
 					go spider(key, db, client, ch)
 				}
@@ -80,7 +86,7 @@ func init() {
 				key := string(iter.Key())
 				value := string(iter.Value())
 				if value == "1" {
-					fmt.Println(strings.TrimPrefix(key, tree))
+					// fmt.Println(strings.TrimPrefix(key, tree))
 					os.MkdirAll(strings.TrimPrefix(key, tree), os.ModeDir|0755)
 				}
 			}
@@ -89,13 +95,14 @@ func init() {
 				fmt.Println("error")
 			}
 
-			ch = make(chan int, 100)
+			ch = make(chan int, thread)
 			iter = db.NewIterator(util.BytesPrefix([]byte(raw)), nil)
 			for iter.Next() {
 				key := string(iter.Key())
 				value := string(iter.Value())
 				sum++
 				if value == "0" {
+					// fmt.Println(key, value)
 					suc++
 					ch <- 1
 					wg.Add(1)
@@ -113,6 +120,7 @@ func init() {
 	RootCmd.Flags().StringVarP(&git, "git", "g", "https://gitlab.com/TeeFirefly/FireNow-Nougat/", "git url")
 	RootCmd.Flags().StringVarP(&patch, "patch", "p", "master", "patch")
 	RootCmd.Flags().StringVarP(&directory, "directory", "d", "", "directories path")
+	RootCmd.Flags().IntVarP(&thread, "thread", "t", 100, "thread num")
 }
 
 func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
@@ -125,6 +133,8 @@ func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
 		time.Sleep(5000)
 		res, err = client.Get(url)
 	}
+	defer res.Body.Close()
+
 	doc, err := goquery.NewDocumentFromResponse(res)
 	if err != nil {
 		log.Fatalln(err)

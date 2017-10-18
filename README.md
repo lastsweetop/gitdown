@@ -37,13 +37,13 @@ gitdown -g https://gitlab.com/TeeFirefly/FireNow-Nougat.git -p firefly-rk3399 -d
 -g  git的url，默认为https://gitlab.com/TeeFirefly/FireNow-Nougat.git
 -p  分支，默认为master
 -d  目录，默认为空
+-t  线程数
 
 ```
 
 # Command
 
 ```
-gitdown -h
 Usage:
   gitdown [flags]
 
@@ -52,6 +52,7 @@ Flags:
   -g, --git string         git url (default "https://gitlab.com/TeeFirefly/FireNow-Nougat/")
   -h, --help               help for gitdown
   -p, --patch string       patch (default "master")
+  -t, --thread int         thread num (default 100)
 ```
 
 # License
