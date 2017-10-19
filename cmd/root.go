@@ -25,12 +25,13 @@ var tree, blob, raw string
 // RootCmd 基命令
 var RootCmd *cobra.Command
 
+var git, patch, directory string
+
 func init() {
-	var git, patch, directory string
 	var thread int
 
 	transport := http.Transport{
-		ResponseHeaderTimeout: time.Second * 30000,
+		ResponseHeaderTimeout: time.Second * 10,
 		DisableKeepAlives:     true,
 		MaxIdleConns:          thread,
 	}
@@ -42,7 +43,6 @@ func init() {
 	RootCmd = &cobra.Command{
 		Use: "gitdown",
 		Run: func(cmd *cobra.Command, args []string) {
-
 			fmt.Println(git)
 			project := strings.TrimSuffix(strings.TrimPrefix(git, `https://gitlab.com`), ".git")
 			fmt.Println(project)
@@ -70,7 +70,6 @@ func init() {
 				value := string(iter.Value())
 				if value == "0" {
 					ch <- 1
-					// time.Sleep(3000) //防止url tree抢占链接资源
 					wg.Add(1)
 					go spider(key, db, client, ch)
 				}
@@ -102,19 +101,19 @@ func init() {
 				value := string(iter.Value())
 				sum++
 				if value == "0" {
-					// fmt.Println(key, value)
+					fmt.Println(key, "start")
 					suc++
 					ch <- 1
 					wg.Add(1)
 					go download(client, key, db, ch)
 				}
 			}
-			fmt.Println(suc, "/", sum)
 			iter.Release()
 			if iter.Error() != nil {
 				fmt.Println("error")
 			}
 			wg.Wait()
+			fmt.Println(suc, "/", sum)
 		},
 	}
 	RootCmd.Flags().StringVarP(&git, "git", "g", "https://gitlab.com/TeeFirefly/FireNow-Nougat/", "git url")
@@ -129,8 +128,12 @@ func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
 	url := `https://gitlab.com` + path
 
 	res, err := client.Get(url)
-	for err != nil {
-		time.Sleep(5000)
+	for {
+		if err == nil {
+			break
+		}
+		fmt.Println(err)
+		time.Sleep(time.Second * 3)
 		res, err = client.Get(url)
 	}
 	defer res.Body.Close()
@@ -173,32 +176,34 @@ func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
 
 func download(client http.Client, path string, db *dao.LinkDB, ch chan int) {
 	res, err := client.Get(`https://gitlab.com` + path)
-	for err != nil {
-		time.Sleep(5000)
+	for {
+		if err == nil {
+			break
+		}
+		fmt.Println("get", err)
+		time.Sleep(time.Second * 3)
 		res, err = client.Get(`https://gitlab.com` + path)
 	}
 	defer res.Body.Close()
 	f, err := os.Create(strings.TrimPrefix(path, raw))
 	defer f.Close()
 	if err != nil {
-		errorDone(err, ch)
+		fmt.Println(path, err)
+		<-ch
+		wg.Done()
 		return
 	}
 	len, err := io.Copy(f, res.Body)
 	if err != nil {
-		errorDone(err, ch)
+		fmt.Println(path, "copy", err)
+		<-ch
+		wg.Done()
 		return
 	}
 	fmt.Println(path, len)
 	if err := db.PutBool(path, true); err != nil {
-		errorDone(err, ch)
+		fmt.Println(err)
 	}
 	<-ch
-	wg.Done()
-}
-
-func errorDone(err error, ch chan int) {
-	<-ch
-	fmt.Println(err)
 	wg.Done()
 }
