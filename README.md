@@ -55,6 +55,22 @@ Flags:
   -t, --thread int         thread num (default 100)
 ```
 
+# vertify
+
+检查每个文件是否有文件损坏
+
+```
+vertify the repo
+
+Usage:
+  gitdown vertify [flags]
+
+Flags:
+  -g, --git string     git url (default "https://gitlab.com/TeeFirefly/FireNow-Nougat")
+  -h, --help           help for vertify
+  -p, --patch string   patch (default "firefly-rk3399")
+```
+
 # License
 This repository is Copyright (c) 2017 lastsweetop, Inc. All rights reserved. It is licensed under the MIT license. Please see the LICENSE file for applicable license terms.
 

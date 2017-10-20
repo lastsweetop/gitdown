@@ -31,7 +31,7 @@ func init() {
 	var thread int
 
 	transport := http.Transport{
-		ResponseHeaderTimeout: time.Second * 10,
+		ResponseHeaderTimeout: time.Second * 20,
 		DisableKeepAlives:     true,
 		MaxIdleConns:          thread,
 	}
@@ -112,8 +112,8 @@ func init() {
 			if iter.Error() != nil {
 				fmt.Println("error")
 			}
-			wg.Wait()
 			fmt.Println(suc, "/", sum)
+			wg.Wait()
 		},
 	}
 	RootCmd.Flags().StringVarP(&git, "git", "g", "https://gitlab.com/TeeFirefly/FireNow-Nougat/", "git url")
@@ -176,33 +176,34 @@ func spider(path string, db *dao.LinkDB, client http.Client, ch chan int) {
 
 func download(client http.Client, path string, db *dao.LinkDB, ch chan int) {
 	res, err := client.Get(`https://gitlab.com` + path)
-	for {
-		if err == nil {
-			break
-		}
+
+	if err != nil {
 		fmt.Println("get", err)
 		time.Sleep(time.Second * 3)
-		res, err = client.Get(`https://gitlab.com` + path)
+		download(client, path, db, ch)
+		return
 	}
 	defer res.Body.Close()
+
 	f, err := os.Create(strings.TrimPrefix(path, raw))
 	defer f.Close()
 	if err != nil {
 		fmt.Println(path, err)
-		<-ch
-		wg.Done()
+		download(client, path, db, ch)
 		return
 	}
 	len, err := io.Copy(f, res.Body)
 	if err != nil {
 		fmt.Println(path, "copy", err)
-		<-ch
-		wg.Done()
+		download(client, path, db, ch)
 		return
 	}
-	fmt.Println(path, len)
+	fmt.Println(path, len, res.ContentLength)
+
 	if err := db.PutBool(path, true); err != nil {
 		fmt.Println(err)
+		download(client, path, db, ch)
+		return
 	}
 	<-ch
 	wg.Done()
