@@ -24,8 +24,9 @@ var vertifyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		transport := http.Transport{
 			ResponseHeaderTimeout: time.Second * 20,
-			DisableKeepAlives:     false,
-			MaxIdleConns:          100,
+			DisableKeepAlives:     true,
+			MaxIdleConns:          200,
+			// IdleConnTimeout:       time.Second * 20,
 		}
 
 		client := http.Client{
@@ -38,7 +39,7 @@ var vertifyCmd = &cobra.Command{
 		defer db.Close()
 		fmt.Println(base)
 		iter := db.NewIterator(util.BytesPrefix([]byte(base)), nil)
-		ch := make(chan int, 100)
+		ch := make(chan int, 200)
 		for iter.Next() {
 			key := string(iter.Key())
 			value := string(iter.Value())
@@ -75,10 +76,10 @@ func vertify(url string, client http.Client, db *dao.LinkDB, ch chan int) {
 		wg.Done()
 		return
 	}
+	fmt.Println(path, info.Size(), res.ContentLength, info.Size() == res.ContentLength)
 	if info.Size() == res.ContentLength {
 		db.PutBool("check"+url, true)
 	} else {
-		fmt.Println(path, info.Size(), res.ContentLength, info.Size() == res.ContentLength)
 		db.PutBool(url, false)
 	}
 	<-ch

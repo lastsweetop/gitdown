@@ -33,7 +33,8 @@ func init() {
 	transport := http.Transport{
 		ResponseHeaderTimeout: time.Second * 20,
 		DisableKeepAlives:     true,
-		MaxIdleConns:          thread,
+		// IdleConnTimeout:       time.Second * 60,
+		MaxIdleConns: thread,
 	}
 
 	client := http.Client{
